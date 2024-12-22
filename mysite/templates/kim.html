@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil Utilisateur</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background-color: #fff0f3;
+      color: #333;
+    }
+
+    /* Conteneur principal */
+    .profile-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Bannière */
+    .banner {
+      width: 100%;
+      height: 170px;
+      background: url('/static/kimban.PNG') no-repeat center center;
+      background-size: cover;
+      border-radius: 10px;
+      margin-bottom: -75px;
+    }
+
+    /* Informations sur le profil */
+    .profile-info {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      gap: 15px;
+    }
+
+    .profile-pic {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #fff;
+    }
+
+    .profile-details {
+      flex: 1;
+    }
+
+    .username {
+      font-size: 24px;
+      margin-bottom: 5px;
+      color: #de4d86;
+    }
+
+    .description {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .more-info {
+      display: flex;
+      gap: 50px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .more-info span {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .img-icon {
+      width: 15px;
+    }
+
+    /* Liste des posts */
+    .posts-container {
+      margin-top: 20px;
+    }
+
+    .posts-container h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #de4d86;
+    }
+
+    .post {
+      background: #fff;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      padding: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .post-image {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      object-fit: cover;
+    }
+
+    .plus{
+        margin:20px;
+        background-color:#FFF;
+        border-radius:50px;
+        width:100px;
+        height:100px;
+        color:#FFF0F3;
+          display: flex;
+          justify-content:center;
+          align-items: center;
+         font-size:60px;
+         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .plus-box{
+        width:100%;
+          display: flex;
+          justify-content:center;
+          align-items: center;
+    }
+
+    .post-description {
+      font-size: 14px;
+      color: #555;
+    }
+
+    /* Responsiveness */
+    @media (max-width: 768px) {
+      .profile-info {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 10px;
+      }
+
+      .profile-pic {
+        width: 80px;
+        height: 80px;
+      }
+
+      .username {
+        font-size: 20px;
+      }
+
+      .description {
+        font-size: 12px;
+      }
+
+      .more-info {
+         display:flex;
+         justify-content:space-around;
+        gap: 20px;
+      }
+
+      .more-info span {
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .banner {
+        height: 140px;
+      }
+
+      .profile-container {
+        padding: 15px;
+      }
+
+      .posts-container h2 {
+        font-size: 18px;
+      }
+
+      .post {
+        padding: 10px;
+      }
+
+      .post-description {
+        font-size: 12px;
+      }
+
+    a {
+    text-decoration: none; /* Supprime le soulignement */
+    color: inherit; /* Utilise la couleur héritée du parent, pour ne pas appliquer de couleur spécifique */
+    }
+
+    a:hover, a:focus, a:active {
+        text-decoration: none; /* Assure qu'il n'y a pas de soulignement ou autres styles au survol, au focus ou au clic */
+        color: inherit; /* Même couleur pour l'état au survol */
+    }
+
+    /* Conteneur pour positionner l'image et l'icône */
+.post-image-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: auto;
+}
+
+/* Image principale */
+.post-image {
+  width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Icône superposée et centrée */
+.eye-icon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  opacity:75%;
+  width: 40px; /* Ajustez selon la taille souhaitée */
+  height: auto;
+  z-index: 2;
+  pointer-events: none; /* Permet le clic sur toute l'image */
+}
+
+/* Lien de l'image */
+.post-link {
+  display: block;
+  text-decoration: none;
+}
+
+
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    <!-- Bannière -->
+    <div class="banner"></div>
+
+    <!-- Section Profil -->
+    <div class="profile-info">
+      <img src="{{ url_for('static', filename='kimpp.PNG') }}" alt="Photo de profil" class="profile-pic">
+      <div class="profile-details">
+        <h1 class="username">kmyy</h1>
+        <p class="description">💋 Bienvenue dans mon univers ! 💞 Je suis là pour partager avec vous une facette authentique de ma vie 🌈</p>
+        <div class="more-info">
+          <span>
+            <strong>1324</strong>
+            abonnés
+          </span>
+          <span>
+            <strong>86</strong>
+            <img src="{{ url_for('static', filename='image-gallery.png') }}" class="img-icon" alt="Icone galerie">
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste des posts -->
+    <div class="posts-container">
+      <h2>Posts</h2>
+        <div class="post">
+          <a href="/kmyy/register" class="post-link">
+            <div class="post-image-container">
+              <img src="{{ url_for('static', filename='kimypost1.png') }}" alt="Image du post" class="post-image img2">
+              <img src="{{ url_for('static', filename='eyeicon.png') }}" alt="Icône" class="eye-icon">
+            </div>
+          </a>
+          <p class="post-description">Elle me manque tellement quand elle n'est pas avec moi, la j’ai juste besoin de la voir </p>
+        </div>
+
+
+        <div class="post">
+          <a href="/kmyy/register" class="post-link">
+            <div class="post-image-container">
+              <img src="{{ url_for('static', filename='kimypost2.png') }}" alt="Image du post" class="post-image img2">
+              <img src="{{ url_for('static', filename='eyeicon.png') }}" alt="Icône" class="eye-icon">
+            </div>
+          </a>
+          <p class="post-description">Dans 9jours c’est mon anniversaire :)))))</p>
+        </div>
+
+
+      <a href="/kmyy/register" class="plus-box">
+          <div class="plus">
+            <p>+</p>
+          </div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

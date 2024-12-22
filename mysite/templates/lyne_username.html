@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Private Photos</title>
+
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Form Container Styling */
+        .form-container {
+            background-color: #ffffff;
+            width: 400px;
+            padding: 40px;
+            margin:20px;
+            border-radius: 10px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .form-container h1 {
+            font-size: 26px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* Text Justification and Styling */
+        .form-container p {
+            font-size: 16px;
+            color: #555;
+            text-align: justify;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        /* Input Field Styling */
+        .form-container input[type="text"],
+        .form-container input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* Primary Button Styling (PayPal) */
+        .form-container .btn-pp {
+            width: 100%;
+            padding: 12px;
+            background-color: #0070BA;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-container button:hover {
+            background-color: #005EA6;
+        }
+
+        /* Outline Button Styling (Crypto) */
+        .outline-button {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #0070BA; /* Blue border */
+            background-color: #FFF; /* No background color */
+            color: #0070BA; /* Blue text */
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .outline-button:hover {
+            background-color: #0070BA; /* Change background to blue when hovered */
+            color: white; /* Change text color to white when hovered */
+        }
+
+        /* Link Styling */
+        .form-container a {
+            color: #0070BA;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .form-container a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer Note */
+        .form-container .footer-note {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h1>Unlock Exclusive Photos</h1>
+
+        <p>
+            Hey!
+            Thanks for checking out my private content! 💖 To unlock access, simply make a quick and secure PayPal payment. Once confirmed, you’ll get full access to everything.
+
+            Before we continue, please provide your email so I can send you all the content after payment. By proceeding, you confirm you're 18 or older. 🔒
+
+            Let's get started! 🎉
+        </p>
+
+        <!-- Input Fields -->
+        <form id="paymentForm">
+            <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+
+            <!-- PayPal Button -->
+            <button class="btn-pp" type="button" onclick="redirectToPayPal()">Pay Now with PayPal</button>
+
+        </form>
+
+        <!-- NowPayments Crypto Button (Outline Style) -->
+        <a href="https://nowpayments.io/payment?iid=6306022344" target="_blank">
+            <button type="button" class="outline-button">Pay Anonymously with Crypto</button>
+        </a>
+
+        <p class="footer-note">
+            For assistance or issues, contact support at
+            <a href="mailto:support@paypal.com">support@paypal.com</a>.
+        </p>
+    </div>
+
+    <script>
+        function redirectToPayPal() {
+            // Get the email value
+            const email = document.getElementById('email').value;
+
+            // Validate that fields are not empty
+            if (!email) {
+                alert("Please fill in all fields before proceeding.");
+                return;
+            }
+
+            // Replace this URL with your actual PayPal link
+            const paypalUrl = `https://paypal.me/lyneintense/25USD`;
+
+            // Redirect to PayPal
+            window.location.href = paypalUrl;
+        }
+    </script>
+
+</body>
+</html>

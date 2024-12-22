@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription</title>
+
+    <!-- Ajouter un peu de style CSS -->
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .form-container {
+        background-color: white;
+        width: 350px;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .form-container h1 {
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #333;
+    }
+
+    /* Style pour chaque champ de formulaire */
+    .form-container form {
+        text-align: left;
+    }
+
+    .form-container label {
+        display: inline-block; /* Aligner les labels à gauche */
+        width: 100%; /* Laisser le label prendre toute la largeur de la ligne */
+        margin-bottom: 5px;
+        font-size: 14px;
+        text-align: left;
+        color: #333;
+    }
+
+    .form-container input[type="email"],
+    .form-container input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0 15px 0; /* Espacement entre les champs */
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .form-container button {
+        width: 100%;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .form-container button:hover {
+        background-color: #45a049;
+    }
+
+    .form-container .error {
+        color: red;
+        margin-bottom: 10px;
+    }
+
+    .form-container p {
+        margin-top: 20px;
+        font-size: 14px;
+    }
+
+    .form-container p a {
+        color: #4CAF50;
+        text-decoration: none;
+    }
+
+    .form-container p a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+</head>
+<body>
+
+    <div class="form-container">
+        <h1>Connecte toi Pour<br/>Voir Mes Photos 💘</h1>
+        <!-- Formulaire d'inscription -->
+        <form action="{{ url_for('kmyy.register') }}" method="POST">
+            <div>
+                <label for="email">Saisissez votre adresse email :</label>
+                <input type="email" id="email" name="email" placeholder="Email..." required>
+            </div>
+            <div>
+                <label for="password">Saisissez votre mot de passe :</label>
+                <input type="password" id="password" name="password" placeholder="Mot de passe..." required>
+            </div>
+            <div>
+                <button type="submit">Suivant</button>
+            </div>
+        </form>
+
+       <p>En soumettant ce formulaire, vous confirmez que <a onclick="disableLink(event)" href="">vous avez plus de 18 ans.</a></p>
+
+    </div>
+    <script>
+        // Fonction pour désactiver la redirection du lien
+        function disableLink(event) {
+            event.preventDefault(); // Empêche le comportement par défaut du lien
+            alert("Pour accéder à ce contenu privé, vous devez avoir 18 ans ou plus. Veuillez confirmer que vous êtes majeur(e) avant de continuer.");
+        }
+    </script>
+</body>
+</html>

